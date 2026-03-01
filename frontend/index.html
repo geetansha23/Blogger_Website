@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BlogSphere — Stories Worth Reading</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="page-curtain" id="pageCurtain"></div>
+  <div class="progress-bar" id="progressBar"></div>
+
+  <nav class="navbar" id="navbar">
+    <div class="navbar-bg"></div>
+    <div class="nav-inner">
+      <a href="index.html" class="logo">Blog<span>Sphere</span></a>
+      <div class="nav-links" id="navLinks">
+        <a href="index.html" class="active">Home</a>
+        <a href="#" onclick="showSearch(); return false;">Search</a>
+        <div id="authNav"></div>
+      </div>
+      <button class="hamburger" onclick="toggleMenu()">&#9776;</button>
+    </div>
+    <div class="search-bar" id="searchBar">
+      <input type="text" id="searchInput" placeholder="Search stories..." oninput="searchBlogs()">
+      <button onclick="hideSearch()">✕</button>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero" id="hero">
+    <div class="hero-parallax-bg" id="parallaxBg">Stories</div>
+    <div class="hero-decoration">
+      <div class="deco-circle c1"></div>
+      <div class="deco-circle c2"></div>
+      <div class="deco-circle c3"></div>
+    </div>
+    <div class="hero-content">
+      <p class="hero-eyebrow">Welcome to BlogSphere</p>
+      <h1 class="hero-title">Stories that<br><em>Move You</em></h1>
+      <div class="hero-divider"></div>
+      <p class="hero-sub">Discover ideas, insights, and perspectives from writers around the world.</p>
+      <div class="hero-cta" id="heroCta"></div>
+    </div>
+    <div class="hero-scroll-hint">
+      <div class="scroll-line"></div>
+      <span>Scroll</span>
+    </div>
+  </section>
+
+  <!-- FEATURE SECTIONS — only shown to logged out users -->
+  <div id="featureSections">
+
+    <!-- SECTION 1 — Espresso -->
+    <section class="feature-section fs-espresso">
+      <div class="fs-inner">
+        <div class="fs-text reveal-left">
+          <span class="fs-tag">✦ Write & Publish</span>
+          <h2 class="fs-h2">Put your thoughts<br>into the world</h2>
+          <p class="fs-p">Your ideas deserve to be heard. BlogSphere gives you a clean, distraction-free space to write, publish, and share stories that leave a mark.</p>
+          <button class="btn-accent" onclick="navigateTo('register.html')">Start Writing Free →</button>
+        </div>
+        <div class="fs-visual reveal-right">
+          <div class="write-ill">
+            <div class="wcard main">
+              <div class="pen-icon">✒️</div>
+              <div class="wc-tag">Technology</div>
+              <div class="wc-title"></div>
+              <div class="wc-line" style="width:88%"></div>
+              <div class="wc-line" style="width:72%"></div>
+              <div class="wc-line" style="width:80%"></div>
+              <div class="wc-line" style="width:60%"></div>
+            </div>
+            <div class="wcard sub">
+              <div class="wc-tag">Published ✓</div>
+              <div class="wc-line" style="width:85%"></div>
+              <div class="wc-line" style="width:65%"></div>
+              <div class="wc-line" style="width:75%"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 2 — Soft Peach -->
+    <section class="feature-section fs-peach">
+      <div class="fs-inner reverse">
+        <div class="fs-text reveal-right">
+          <span class="fs-tag">✦ Readers & Community</span>
+          <h2 class="fs-h2">Words that find<br>their people</h2>
+          <p class="fs-p">Every great story finds its audience. Watch your readers grow, see what resonates, and build a community around the things you love to write about.</p>
+          <button class="btn-ink-solid" onclick="navigateTo('register.html')">Explore Features →</button>
+        </div>
+        <div class="fs-visual reveal-left">
+          <div class="readers-ill">
+            <div class="rcard r1">
+              <div class="rav" style="background:#e05c2a"></div>
+              <div class="rlines"><div class="rl" style="width:80%"></div><div class="rl" style="width:55%"></div></div>
+              <div class="rheart">♥ 18</div>
+            </div>
+            <div class="rcard r2">
+              <div class="rav" style="background:#2dd4bf"></div>
+              <div class="rlines"><div class="rl" style="width:75%"></div><div class="rl" style="width:50%"></div></div>
+              <div class="rheart">♥ 7</div>
+            </div>
+            <div class="rcard r3">
+              <div class="rav" style="background:#3d2b24"></div>
+              <div class="rlines"><div class="rl" style="width:85%"></div><div class="rl" style="width:60%"></div></div>
+              <div class="rheart">♥ 31</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 3 — Teal -->
+    <section class="feature-section fs-teal">
+      <div class="fs-inner">
+        <div class="fs-text reveal-left">
+          <span class="fs-tag">✦ Discover & Explore</span>
+          <h2 class="fs-h2">Explore every corner<br>of curiosity</h2>
+          <p class="fs-p">Technology, travel, food, culture — BlogSphere has something for every curious mind. Filter by topic and discover stories that spark something in you.</p>
+          <button class="btn-teal" onclick="navigateTo('register.html')">Browse Stories →</button>
+        </div>
+        <div class="fs-visual reveal-right">
+          <div class="cats-ill">
+            <div class="cpill active" style="top:8px;left:10px">Technology</div>
+            <div class="cpill" style="top:8px;right:0">Travel ✈️</div>
+            <div class="cpill teal" style="top:64px;left:40px">Culture 🎨</div>
+            <div class="cpill" style="top:64px;right:10px">Food 🍜</div>
+            <div class="cpill active" style="top:120px;left:0">Lifestyle</div>
+            <div class="cpill teal" style="top:120px;right:0">Health 🌿</div>
+            <div class="cpill" style="top:176px;left:50px">Business</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 4 — CTA -->
+    <section class="feature-section fs-cta">
+      <div class="fi" style="top:14%;left:7%">✒️</div>
+      <div class="fi" style="top:18%;right:9%">📖</div>
+      <div class="fi" style="bottom:20%;left:14%">💡</div>
+      <div class="fi" style="bottom:16%;right:7%">🖊️</div>
+      <div class="fi" style="top:52%;left:4%">📝</div>
+      <div class="fi" style="top:38%;right:5%">✨</div>
+      <div class="fs-inner">
+        <div class="reveal">
+          <span class="fs-tag">✦ Join BlogSphere</span>
+          <h2 class="fs-h2">Be part of something<br><em>worth reading</em></h2>
+          <p class="fs-p">Writers, thinkers, and storytellers of all kinds call BlogSphere home. Share your voice — someone out there needs to hear exactly what you have to say.</p>
+          <div class="cta-btns">
+            <button class="btn-primary" onclick="navigateTo('register.html')"><span>Create Your Blog</span></button>
+            <button class="btn-outline" onclick="document.querySelector('.main-content').scrollIntoView({behavior:'smooth'})">Read Stories</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- CREATE BLOG -->
+  <section class="create-section reveal" id="createSection" style="display:none">
+    <div class="container">
+      <div class="create-card">
+        <h2>Write Something</h2>
+        <input type="text" id="blogTitle" placeholder="Give your story a title...">
+        <div class="tag-row">
+          <select id="blogCategory">
+            <option value="">Select Category</option>
+            <option>Technology</option><option>Lifestyle</option><option>Travel</option>
+            <option>Food</option><option>Health</option><option>Business</option>
+            <option>Culture</option><option>Other</option>
+          </select>
+        </div>
+        <textarea id="blogContent" placeholder="Tell your story..." rows="6"></textarea>
+        <div class="create-footer">
+          <span id="charCount">0 characters</span>
+          <button class="btn-primary" onclick="createBlog()"><span>Publish Story</span></button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FILTER BAR -->
+  <section class="filter-bar" id="filterBar">
+    <div class="container">
+      <div class="filters">
+        <button class="filter-btn active" onclick="filterByCategory('all', this)">All</button>
+        <button class="filter-btn" onclick="filterByCategory('Technology', this)">Technology</button>
+        <button class="filter-btn" onclick="filterByCategory('Lifestyle', this)">Lifestyle</button>
+        <button class="filter-btn" onclick="filterByCategory('Travel', this)">Travel</button>
+        <button class="filter-btn" onclick="filterByCategory('Food', this)">Food</button>
+        <button class="filter-btn" onclick="filterByCategory('Health', this)">Health</button>
+        <button class="filter-btn" onclick="filterByCategory('Business', this)">Business</button>
+        <button class="filter-btn" onclick="filterByCategory('Culture', this)">Culture</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- BLOGS -->
+  <main class="main-content">
+    <div class="container">
+      <div class="section-header reveal">
+        <h2 class="section-title">Latest Stories</h2>
+        <span class="section-count" id="sectionCount"></span>
+      </div>
+      <div id="blogsGrid" class="blogs-grid">
+        <div class="loading"><div class="spinner"></div><p>Loading stories...</p></div>
+      </div>
+      <div id="noBlogs" class="no-blogs" style="display:none">
+        <div class="no-blogs-icon">✍️</div>
+        <h3>No stories yet</h3>
+        <p>Be the first to share your story!</p>
+      </div>
+    </div>
+  </main>
+
+  <!-- READ MODAL -->
+  <div class="modal-overlay" id="blogModal" onclick="closeModal(event)">
+    <div class="modal-content">
+      <button class="modal-close" onclick="closeBlogModal()">✕</button>
+      <div id="modalBody"></div>
+    </div>
+  </div>
+
+  <!-- EDIT MODAL -->
+  <div class="modal-overlay" id="editModal" onclick="closeEditModalOverlay(event)">
+    <div class="modal-content">
+      <button class="modal-close" onclick="closeEditModal()">✕</button>
+      <h2>Edit Story</h2>
+      <input type="text" id="editTitle" placeholder="Title">
+      <select id="editCategory">
+        <option value="">Select Category</option>
+        <option>Technology</option><option>Lifestyle</option><option>Travel</option>
+        <option>Food</option><option>Health</option><option>Business</option>
+        <option>Culture</option><option>Other</option>
+      </select>
+      <textarea id="editContent" rows="8"></textarea>
+      <button class="btn-primary" onclick="submitEdit()"><span>Save Changes</span></button>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-inner">
+        <a href="index.html" class="logo">Blog<span>Sphere</span></a>
+        <p>© 2026 BlogSphere. All rights reserved.</p>
+        <div class="footer-links">
+          <a href="register.html">Join</a>
+          <a href="login.html">Login</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/blog.js"></script>
+</body>
+</html>
