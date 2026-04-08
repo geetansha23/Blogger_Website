@@ -3,43 +3,57 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login — BlogSphere</title>
+  <title>Sign In &mdash; BlogSphere</title>
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces&family=DM+Sans&display=swap" rel="stylesheet">
+
+  <!-- ✅ FIXED PATH -->
   <link rel="stylesheet" href="css/style.css">
 </head>
+
 <body class="auth-page">
   <div class="page-curtain" id="pageCurtain"></div>
+
   <div class="auth-container">
+
     <div class="auth-left">
-      <div class="auth-left-inner">
-        <a href="index.html" class="logo large">Blog<span>Sphere</span></a>
-        <h2 class="auth-tagline">Where ideas<br><em>come alive.</em></h2>
-        <p>Join thousands of writers and readers sharing stories that matter.</p>
-      </div>
-      <div class="auth-deco">
-        <div class="deco-circle c1"></div>
-        <div class="deco-circle c2"></div>
+      <div class="auth-bg"></div>
+
+      <div class="auth-left-content">
+        <a href="index.html" class="auth-logo">Blog<span>Sphere</span></a>
+
+        <h2>Where ideas come alive.</h2>
+        <p>Join thousands of writers sharing stories.</p>
       </div>
     </div>
+
     <div class="auth-right">
       <div class="auth-form-wrap">
+
         <h2>Welcome back</h2>
-        <p class="auth-sub">Sign in to continue your journey</p>
+
         <div class="form-group">
           <label>Email</label>
-          <input type="email" id="email" placeholder="you@example.com" onkeydown="if(event.key==='Enter') login()">
+          <input type="email" id="email">
         </div>
+
         <div class="form-group">
           <label>Password</label>
-          <input type="password" id="password" placeholder="••••••••" onkeydown="if(event.key==='Enter') login()">
+          <input type="password" id="password">
         </div>
-        <button class="btn-primary full" onclick="login()" id="loginBtn"><span>Sign In</span></button>
-        <p class="auth-switch">Don't have an account? <a href="register.html">Create one</a></p>
+
+        <button onclick="login()">Sign In</button>
+
+        <p>Don't have an account?
+          <a href="register.html">Register</a>
+        </p>
+
       </div>
     </div>
+
   </div>
-  <div class="toast" id="toast"></div>
+
   <script src="js/auth.js"></script>
 </body>
 </html>

@@ -1,7 +1,9 @@
 const User = require("../models/User");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-
+if (!process.env.JWT_SECRET) {
+  throw new Error("JWT_SECRET missing in .env");
+}
 exports.register = async (req, res) => {
   try {
     const { name, email, password } = req.body;
