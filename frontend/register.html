@@ -1,59 +1,64 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Create Account &mdash; BlogSphere</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Register | BlogSphere</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces&family=DM+Sans&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet">
 
-  <!-- ✅ FIXED PATH -->
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/style.css" />
 </head>
-
-<body class="auth-page">
-  <div class="auth-container">
-
-    <div class="auth-left">
-      <div class="auth-left-content">
-        <a href="index.html" class="auth-logo">Blog<span>Sphere</span></a>
-
-        <h2>Create your account</h2>
-        <p>Start writing your stories today.</p>
+<body class="auth-body">
+  <div class="auth-layout">
+    <div class="auth-visual">
+      <div class="auth-visual-overlay"></div>
+      <img
+        src="https://images.unsplash.com/photo-1517842645767-c639042777db?q=80&w=1200&auto=format&fit=crop"
+        alt="Creative desk"
+      />
+      <div class="auth-visual-content">
+        <span>Start Writing</span>
+        <h1>Create your space and share stories that matter.</h1>
+        <p>Join BlogSphere and publish your ideas in a clean, attractive interface.</p>
       </div>
     </div>
 
-    <div class="auth-right">
-      <div class="auth-form-wrap">
+    <div class="auth-form-area">
+      <a href="index.html" class="auth-logo">BlogSphere</a>
 
-        <h2>Register</h2>
+      <div class="auth-form-card">
+        <h2>Create Account</h2>
+        <p>Join the platform and start publishing stories.</p>
 
         <div class="form-group">
-          <label>Name</label>
-          <input type="text" id="name">
+          <label for="name">Name</label>
+          <input type="text" id="name" placeholder="Enter your name" />
         </div>
 
         <div class="form-group">
-          <label>Email</label>
-          <input type="email" id="email">
+          <label for="email">Email</label>
+          <input type="email" id="email" placeholder="Enter your email" />
         </div>
 
         <div class="form-group">
-          <label>Password</label>
-          <input type="password" id="password">
+          <label for="password">Password</label>
+          <input type="password" id="password" placeholder="Create a password" />
         </div>
 
-        <button onclick="register()">Create Account</button>
+        <button class="btn btn-primary full-width" id="registerBtn" onclick="register()">Create Account</button>
 
-        <p>Already have an account?
+        <p class="auth-switch">
+          Already have an account?
           <a href="login.html">Login</a>
         </p>
-
       </div>
     </div>
-
   </div>
+
+  <div class="toast" id="toast"></div>
 
   <script src="js/auth.js"></script>
 </body>

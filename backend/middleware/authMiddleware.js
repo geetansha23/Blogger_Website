@@ -1,13 +1,21 @@
-if (!process.env.JWT_SECRET) {
-  throw new Error("JWT_SECRET missing in .env");
-}
-
 const jwt = require("jsonwebtoken");
+
 module.exports = (req, res, next) => {
   try {
-    const token = req.headers.authorization?.split(" ")[1];
-    if (!token) return res.status(401).json({ message: "No token" });
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const authHeader = req.headers.authorization || "";
+
+    if (!authHeader.startsWith("Bearer ")) {
+      return res.status(401).json({ message: "Authorization token missing" });
+    }
+
+    const token = authHeader.split(" ")[1];
+    const secret = process.env.JWT_SECRET;
+
+    if (!secret) {
+      return res.status(500).json({ message: "JWT_SECRET missing in .env" });
+    }
+
+    const decoded = jwt.verify(token, secret);
     req.user = decoded;
     next();
   } catch (err) {

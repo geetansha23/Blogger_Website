@@ -1,260 +1,173 @@
-const API = "http://localhost:5000";
+const API = window.location.origin;
 const token = localStorage.getItem("token");
 const userName = localStorage.getItem("userName") || "User";
 
 let allBlogs = [];
 let currentCategory = "all";
-let editingBlogId = null;
 let currentUserId = null;
 let featuredBlogId = null;
+let editingBlogId = null;
+
+const categoryImages = {
+  Technology: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=1200&auto=format&fit=crop",
+  Lifestyle: "https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?q=80&w=1200&auto=format&fit=crop",
+  Travel: "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=1200&auto=format&fit=crop",
+  Food: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?q=80&w=1200&auto=format&fit=crop",
+  Health: "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?q=80&w=1200&auto=format&fit=crop",
+  Business: "https://images.unsplash.com/photo-1520607162513-77705c0f0d4a?q=80&w=1200&auto=format&fit=crop",
+  Culture: "https://images.unsplash.com/photo-1516280440614-37939bbacd81?q=80&w=1200&auto=format&fit=crop",
+  Other: "https://images.unsplash.com/photo-1455390582262-044cdead277a?q=80&w=1200&auto=format&fit=crop"
+};
 
 window.addEventListener("load", async () => {
-  initPageTransition();
-  initStarField("heroStars");
-  initStarField("modalStars", 35);
   setupNavbar();
-  setupFeatureSections();
   setupCreateSection();
   setupCharCounter();
   await loadBlogs();
-  initScrollEffects();
-  initProgressBar();
-  initFilterElevation();
 });
 
-/* ───── PAGE TRANSITION ───── */
-function initPageTransition() {
-  const curtain = document.getElementById("pageCurtain");
-  if (!curtain) return;
-  curtain.classList.add("opening");
-  curtain.addEventListener("animationend", () => curtain.classList.remove("opening"), { once: true });
-}
-
-function navigateTo(url) {
-  const curtain = document.getElementById("pageCurtain");
-  if (!curtain) { window.location.href = url; return; }
-  curtain.classList.add("closing");
-  curtain.addEventListener("animationend", () => window.location.href = url, { once: true });
-}
-
-document.addEventListener("click", (e) => {
-  const link = e.target.closest("a");
-  if (!link) return;
-  const href = link.getAttribute("href");
-  if (!href || href.startsWith("#") || href.startsWith("http") || href.startsWith("javascript")) return;
-  e.preventDefault();
-  navigateTo(href);
-});
-
-/* ───── STAR FIELD ───── */
-function initStarField(canvasId, count = 60) {
-  const canvas = document.getElementById(canvasId);
-  if (!canvas) return;
-  const resize = () => {
-    canvas.width = canvas.offsetWidth;
-    canvas.height = canvas.offsetHeight;
-    drawStars(canvas, count);
-  };
-  resize();
-  window.addEventListener("resize", resize, { passive: true });
-}
-
-function drawStars(canvas, count) {
-  const ctx = canvas.getContext("2d");
-  if (!ctx) return;
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  for (let i = 0; i < count; i++) {
-    const x = Math.random() * canvas.width;
-    const y = Math.random() * canvas.height;
-    const r = Math.random() * 1.2 + 0.2;
-    const opacity = Math.random() * 0.55 + 0.1;
-    ctx.beginPath();
-    ctx.arc(x, y, r, 0, Math.PI * 2);
-    ctx.fillStyle = `rgba(255,255,255,${opacity})`;
-    ctx.fill();
-  }
-}
-
-/* ───── PROGRESS BAR ───── */
-function initProgressBar() {
-  const bar = document.getElementById("progressBar");
-  if (!bar) return;
-  window.addEventListener("scroll", () => {
-    const docH = document.documentElement.scrollHeight - window.innerHeight;
-    bar.style.width = (docH > 0 ? (window.scrollY / docH) * 100 : 0) + "%";
-  }, { passive: true });
-}
-
-/* ───── SCROLL REVEAL ───── */
-function initScrollEffects() {
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) { entry.target.classList.add("visible"); observer.unobserve(entry.target); }
-    });
-  }, { threshold: 0.1, rootMargin: "0px 0px -40px 0px" });
-  document.querySelectorAll(".reveal, .reveal-left, .reveal-right").forEach(el => observer.observe(el));
-}
-
-/* ───── FILTER BAR ELEVATION ───── */
-function initFilterElevation() {
-  const bar = document.getElementById("filterBar");
-  if (!bar) return;
-  window.addEventListener("scroll", () => {
-    bar.classList.toggle("elevated", window.scrollY > 200);
-  }, { passive: true });
-}
-
-/* ───── FEATURE SECTIONS ───── */
-function setupFeatureSections() {
-  const sections = document.getElementById("featureSections");
-  if (sections && token) sections.style.display = "none";
-}
-
-/* ───── NAVBAR ───── */
 function setupNavbar() {
   const authNav = document.getElementById("authNav");
-  const heroCta = document.getElementById("heroCta");
-
-  window.addEventListener("scroll", () => {
-    const nb = document.getElementById("navbar");
-    if (nb) nb.classList.toggle("scrolled", window.scrollY > 30);
-  }, { passive: true });
-
   if (!authNav) return;
 
   if (token) {
     const initial = userName.charAt(0).toUpperCase();
+
     authNav.innerHTML = `
       <div class="nav-user">
-        <div class="nav-avatar" onclick="toggleDropdown()" title="${escapeHtml(userName)}">
-          ${initial}
-          <div class="nav-dropdown" id="navDropdown">
-            <a href="#" style="pointer-events:none;opacity:0.45;font-size:0.78rem;cursor:default">${escapeHtml(userName)}</a>
-            <a href="#" onclick="logout(); return false;" class="danger">Sign Out</a>
-          </div>
+        <div class="nav-user-badge" onclick="toggleDropdown()">${initial}</div>
+        <div class="nav-dropdown" id="navDropdown">
+          <a href="#" style="pointer-events:none; opacity:0.75;">${escapeHtml(userName)}</a>
+          <a href="#" onclick="logout(); return false;">Logout</a>
         </div>
-      </div>`;
-    if (heroCta) heroCta.innerHTML = `
-      <button class="btn-primary" onclick="document.getElementById('createSection').scrollIntoView({behavior:'smooth'})"><span>Write a Story</span></button>
-      <button class="btn-outline" onclick="document.querySelector('.main-content').scrollIntoView({behavior:'smooth'})">Read Stories</button>`;
+      </div>
+    `;
   } else {
     authNav.innerHTML = `
-      <a href="login.html">Sign In</a>
-      <a href="register.html" style="background:var(--ink);color:#fff;padding:9px 20px;border-radius:8px;font-size:0.83rem;font-weight:500;text-decoration:none;transition:opacity 0.2s" onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'">Get Started</a>`;
-    if (heroCta) heroCta.innerHTML = `
-      <a href="register.html" class="btn-primary"><span>Start Writing Free</span></a>
-      <button class="btn-outline" onclick="document.querySelector('.main-content').scrollIntoView({behavior:'smooth'})">Explore Stories</button>`;
+      <a class="btn btn-secondary" href="login.html">Login</a>
+      <a class="btn btn-primary" href="register.html">Register</a>
+    `;
   }
 }
 
-function toggleDropdown() { document.getElementById("navDropdown")?.classList.toggle("open"); }
-document.addEventListener("click", (e) => { if (!e.target.closest(".nav-avatar")) document.getElementById("navDropdown")?.classList.remove("open"); });
-function logout() { localStorage.removeItem("token"); localStorage.removeItem("userName"); window.location.reload(); }
-
-function showSearch() {
-  document.getElementById("searchBar").classList.add("open");
-  setTimeout(() => document.getElementById("searchInput").focus(), 50);
-}
-function hideSearch() {
-  document.getElementById("searchBar").classList.remove("open");
-  document.getElementById("searchInput").value = "";
-  renderBlogs(filterBlogs(allBlogs));
-}
-function searchBlogs() {
-  const q = document.getElementById("searchInput").value.toLowerCase();
-  if (!q) { renderBlogs(filterBlogs(allBlogs)); return; }
-  renderBlogs(allBlogs.filter(b =>
-    b.title.toLowerCase().includes(q) ||
-    b.content.toLowerCase().includes(q) ||
-    (b.author?.name || "").toLowerCase().includes(q)
-  ));
+function toggleDropdown() {
+  document.getElementById("navDropdown")?.classList.toggle("open");
 }
 
-/* ───── CATEGORY FILTER ───── */
-function filterByCategory(cat, btn) {
-  currentCategory = cat;
-  document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
-  btn.classList.add("active");
-  renderBlogs(filterBlogs(allBlogs));
-}
-function filterBlogs(blogs) {
-  return currentCategory === "all" ? blogs : blogs.filter(b => b.category === currentCategory);
+document.addEventListener("click", (event) => {
+  if (!event.target.closest(".nav-user")) {
+    document.getElementById("navDropdown")?.classList.remove("open");
+  }
+});
+
+function logout() {
+  localStorage.removeItem("token");
+  localStorage.removeItem("userName");
+  window.location.reload();
 }
 
-/* ───── CREATE SECTION ───── */
+function toggleMobileMenu() {
+  document.getElementById("navLinks")?.classList.toggle("mobile-open");
+}
+
+function scrollToCreate() {
+  const section = document.getElementById("createSection");
+
+  if (section && token) {
+    section.scrollIntoView({ behavior: "smooth" });
+  } else {
+    window.location.href = "login.html";
+  }
+}
+
+function scrollToLatest() {
+  document.getElementById("latest")?.scrollIntoView({ behavior: "smooth" });
+}
+
 function setupCreateSection() {
-  const cs = document.getElementById("createSection");
-  if (cs && token) cs.style.display = "block";
+  const createSection = document.getElementById("createSection");
+  if (createSection && token) {
+    createSection.style.display = "block";
+  }
 }
+
 function setupCharCounter() {
-  const content = document.getElementById("blogContent");
-  const counter = document.getElementById("charCount");
-  if (content && counter) content.addEventListener("input", () => { counter.textContent = `${content.value.length} characters`; });
+  const blogContent = document.getElementById("blogContent");
+  const charCount = document.getElementById("charCount");
+
+  if (blogContent && charCount) {
+    blogContent.addEventListener("input", () => {
+      charCount.textContent = `${blogContent.value.length} characters`;
+    });
+  }
 }
 
-/* ───── CATEGORY → SCENE CLASS ───── */
-function sceneClass(category) {
-  const map = {
-    "Technology": "scene-tech",
-    "Travel": "scene-travel",
-    "Culture": "scene-culture",
-    "Health": "scene-health",
-    "Business": "scene-business",
-    "Lifestyle": "scene-lifestyle",
-    "Food": "scene-lifestyle",
-    "Other": "scene-other",
-  };
-  return map[category] || "scene-default";
-}
-
-const cardImages = {
-  "Technology": "https://images.unsplash.com/photo-1518770660439-4636190af475?w=600&auto=format&fit=crop&q=75",
-  "Travel":     "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600&auto=format&fit=crop&q=75",
-  "Culture":    "https://images.unsplash.com/photo-1499364615650-ec38552f4f34?w=600&auto=format&fit=crop&q=75",
-  "Health":     "https://images.unsplash.com/photo-1476480862126-209bfaa8edc8?w=600&auto=format&fit=crop&q=75",
-  "Business":   "https://images.unsplash.com/photo-1444653389962-8149286c578a?w=600&auto=format&fit=crop&q=75",
-  "Lifestyle":  "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=600&auto=format&fit=crop&q=75",
-  "Food":       "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=600&auto=format&fit=crop&q=75",
-  "Other":      "https://images.unsplash.com/photo-1519681393784-d120267933ba?w=600&auto=format&fit=crop&q=75",
-};
-const defaultCardImage = "https://images.unsplash.com/photo-1455390582262-044cdead277a?w=600&auto=format&fit=crop&q=75";
-
-/* ───── LOAD & RENDER ───── */
 async function loadBlogs() {
   try {
-    const res = await fetch(`${API}/api/blogs`);
-    allBlogs = await res.json();
+    const response = await fetch(`${API}/api/blogs`);
+    const data = await response.json();
+
+    allBlogs = Array.isArray(data) ? data : [];
+    document.getElementById("heroCount").textContent = allBlogs.length;
+
     if (token) {
-      try { const payload = JSON.parse(atob(token.split(".")[1])); currentUserId = payload.id; } catch {}
+      try {
+        const payload = JSON.parse(atob(token.split(".")[1]));
+        currentUserId = payload.id;
+      } catch {
+        currentUserId = null;
+      }
     }
-    updateFeaturedPanel();
+
+    updateFeatured();
     renderBlogs(filterBlogs(allBlogs));
-  } catch {
-    const g = document.getElementById("blogsGrid");
-    if (g) g.innerHTML = `<div class="loading"><p>Failed to load. Is the server running?</p></div>`;
+  } catch (error) {
+    const grid = document.getElementById("blogsGrid");
+    if (grid) {
+      grid.innerHTML = `
+        <div class="empty-state">
+          <h3>Could not load stories</h3>
+          <p>Please check if backend is running properly.</p>
+        </div>
+      `;
+    }
   }
 }
 
-function updateFeaturedPanel() {
+function updateFeatured() {
   if (!allBlogs.length) return;
+
   const featured = allBlogs[0];
   featuredBlogId = featured._id;
+
   const author = featured.author?.name || "Anonymous";
-  const readTime = Math.max(1, Math.ceil(featured.content.split(" ").length / 200));
+  const date = formatDate(featured.createdAt);
 
-  const titleEl = document.getElementById("featuredTitle");
-  const avEl = document.getElementById("featuredAv");
-  const authorEl = document.getElementById("featuredAuthor");
-  const timeEl = document.getElementById("featuredTime");
-
-  if (titleEl) titleEl.textContent = featured.title;
-  if (avEl) avEl.textContent = author.charAt(0).toUpperCase();
-  if (authorEl) authorEl.textContent = author;
-  if (timeEl) timeEl.textContent = `· ${readTime} min read`;
+  document.getElementById("featuredTitle").textContent = featured.title;
+  document.getElementById("featuredExcerpt").textContent = shortenText(featured.content, 120);
+  document.getElementById("featuredAuthor").textContent = author;
+  document.getElementById("featuredDate").textContent = date;
+  document.getElementById("featuredAvatar").textContent = author.charAt(0).toUpperCase();
 }
 
 function openFeatured() {
-  if (featuredBlogId) openBlog(featuredBlogId);
+  if (featuredBlogId) {
+    openBlog(featuredBlogId);
+  }
+}
+
+function filterByCategory(category, button) {
+  currentCategory = category;
+
+  document.querySelectorAll(".chip").forEach((chip) => chip.classList.remove("active"));
+  button.classList.add("active");
+
+  renderBlogs(filterBlogs(allBlogs));
+}
+
+function filterBlogs(blogs) {
+  if (currentCategory === "all") return blogs;
+  return blogs.filter((blog) => (blog.category || "Other") === currentCategory);
 }
 
 function renderBlogs(blogs) {
@@ -262,196 +175,282 @@ function renderBlogs(blogs) {
   const noBlogs = document.getElementById("noBlogs");
   const count = document.getElementById("sectionCount");
 
-  if (count) count.textContent = blogs.length ? `${blogs.length} stor${blogs.length !== 1 ? "ies" : "y"}` : "";
-  if (!blogs.length) { grid.innerHTML = ""; if (noBlogs) noBlogs.style.display = "block"; return; }
-  if (noBlogs) noBlogs.style.display = "none";
+  if (!grid) return;
 
-  grid.innerHTML = blogs.map((blog, i) => {
-    const author = blog.author?.name || "Anonymous";
-    const initial = author.charAt(0).toUpperCase();
-    const date = new Date(blog.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
-    const isOwner = currentUserId && blog.author?._id === currentUserId;
-    const likes = blog.likes || 0;
-    const readTime = Math.max(1, Math.ceil(blog.content.split(" ").length / 200));
-    const scene = sceneClass(blog.category);
-    const mountainsSvg = scene === "scene-travel" ? `
-      <svg class="mountains" width="100%" height="60" viewBox="0 0 400 60" preserveAspectRatio="none">
-        <polygon points="0,60 60,18 120,38 190,5 260,28 330,12 400,32 400,60" fill="rgba(255,255,255,0.055)"/>
-        <polygon points="0,60 40,32 100,46 160,22 230,40 300,20 370,36 400,50 400,60" fill="rgba(255,255,255,0.035)"/>
-      </svg>` : "";
+  count.textContent = `${blogs.length} stor${blogs.length === 1 ? "y" : "ies"}`;
 
-    return `
-      <article class="blog-card reveal reveal-delay-${(i % 5) + 1}" onclick="openBlog('${blog._id}')">
-        <div class="card-scene ${scene}">
-          <div class="card-scene-bg" style="background-image:url('${cardImages[blog.category] || defaultCardImage}');background-size:cover;background-position:center;"></div>
-          ${mountainsSvg}
-          <div class="card-scene-label">${blog.category || "Story"}</div>
-        </div>
-        <div class="card-header">
-          ${blog.category ? `<span class="card-category">${escapeHtml(blog.category)}</span>` : ""}
-          <h3 class="card-title">${escapeHtml(blog.title)}</h3>
-          <p class="card-excerpt">${escapeHtml(blog.content)}</p>
-        </div>
-        <div class="card-footer">
-          <div class="card-author">
-            <div class="author-avatar">${initial}</div>
-            <div class="author-info">
-              <div class="name">${escapeHtml(author)}</div>
-              <div class="date">${date} &middot; ${readTime} min read</div>
-            </div>
-          </div>
-          <div class="card-actions" onclick="event.stopPropagation()">
-            <button class="like-btn" onclick="likeBlog('${blog._id}', this)">&#9829; ${likes}</button>
-            ${isOwner ? `
-              <button class="edit-btn" onclick="openEditModal('${blog._id}')" title="Edit">&#9998;&#65039;</button>
-              <button class="delete-btn" onclick="deleteBlog('${blog._id}')" title="Delete">&#128465;&#65039;</button>` : ""}
-          </div>
-        </div>
-      </article>`;
-  }).join("");
-
-  const obs = new IntersectionObserver((entries) => {
-    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add("visible"); obs.unobserve(e.target); } });
-  }, { threshold: 0.08, rootMargin: "0px 0px -30px 0px" });
-  document.querySelectorAll(".blog-card.reveal:not(.visible)").forEach(el => obs.observe(el));
-}
-
-/* ───── OPEN BLOG MODAL ───── */
-const categoryImages = {
-  "Technology": "https://images.unsplash.com/photo-1518770660439-4636190af475?w=900&auto=format&fit=crop&q=80",
-  "Travel":     "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=900&auto=format&fit=crop&q=80",
-  "Culture":    "https://images.unsplash.com/photo-1499364615650-ec38552f4f34?w=900&auto=format&fit=crop&q=80",
-  "Health":     "https://images.unsplash.com/photo-1476480862126-209bfaa8edc8?w=900&auto=format&fit=crop&q=80",
-  "Business":   "https://images.unsplash.com/photo-1444653389962-8149286c578a?w=900&auto=format&fit=crop&q=80",
-  "Lifestyle":  "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=900&auto=format&fit=crop&q=80",
-  "Food":       "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=900&auto=format&fit=crop&q=80",
-  "Other":      "https://images.unsplash.com/photo-1519681393784-d120267933ba?w=900&auto=format&fit=crop&q=80",
-};
-const defaultModalImage = "https://images.unsplash.com/photo-1455390582262-044cdead277a?w=900&auto=format&fit=crop&q=80";
-
-function openBlog(id) {
-  const blog = allBlogs.find(b => b._id === id);
-  if (!blog) return;
-  const author = blog.author?.name || "Anonymous";
-  const date = new Date(blog.createdAt).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
-  const readTime = Math.max(1, Math.ceil(blog.content.split(" ").length / 200));
-
-  // Set modal image dynamically based on category
-  const modalImgBg = document.querySelector(".modal-img-bg");
-  if (modalImgBg) {
-    const imgUrl = categoryImages[blog.category] || defaultModalImage;
-    modalImgBg.style.backgroundImage = `url('${imgUrl}')`;
-    modalImgBg.style.backgroundSize = "cover";
-    modalImgBg.style.backgroundPosition = "center";
+  if (!blogs.length) {
+    grid.innerHTML = "";
+    noBlogs.style.display = "block";
+    return;
   }
 
-  // Update modal image tag
-  const tagText = document.getElementById("modalImgTagText");
-  if (tagText) tagText.textContent = `${blog.category || "Story"} · ${readTime} min read`;
+  noBlogs.style.display = "none";
 
-  document.getElementById("modalBody").innerHTML = `
-    ${blog.category ? `<div class="modal-category">${escapeHtml(blog.category)}</div>` : ""}
-    <h2 class="modal-title">${escapeHtml(blog.title)}</h2>
+  grid.innerHTML = blogs.map((blog) => {
+    const author = blog.author?.name || "Anonymous";
+    const authorId = blog.author?._id || blog.author?.id;
+    const isOwner = currentUserId && authorId === currentUserId;
+    const category = blog.category || "Other";
+
+    return `
+      <article class="blog-card" onclick="openBlog('${blog._id}')">
+        <div class="blog-card-image">
+          <img src="${getCategoryImage(category)}" alt="${escapeHtml(category)}" />
+          <span class="pill-label">${escapeHtml(category)}</span>
+        </div>
+
+        <div class="blog-card-content">
+          <h3>${escapeHtml(blog.title)}</h3>
+          <p>${escapeHtml(shortenText(blog.content, 110))}</p>
+
+          <div class="blog-card-footer">
+            <div class="blog-author">
+              <div class="author-avatar">${author.charAt(0).toUpperCase()}</div>
+              <div>
+                <strong>${escapeHtml(author)}</strong>
+                <small>${formatDate(blog.createdAt)} · ${getReadTime(blog.content)} min read</small>
+              </div>
+            </div>
+
+            <div class="blog-actions" onclick="event.stopPropagation()">
+              <button class="icon-action" onclick="likeBlog(this)">♥ 0</button>
+              ${isOwner ? `
+                <button class="icon-action" onclick="openEditModal('${blog._id}')">✎</button>
+                <button class="icon-action" onclick="deleteBlog('${blog._id}')">🗑</button>
+              ` : ""}
+            </div>
+          </div>
+        </div>
+      </article>
+    `;
+  }).join("");
+}
+
+function openBlog(id) {
+  const blog = allBlogs.find((item) => item._id === id);
+  if (!blog) return;
+
+  const author = blog.author?.name || "Anonymous";
+  const category = blog.category || "Other";
+
+  const modalBody = document.getElementById("modalBody");
+  if (!modalBody) return;
+
+  modalBody.innerHTML = `
+    <div class="modal-cover">
+      <img src="${getCategoryImage(category)}" alt="${escapeHtml(category)}" />
+    </div>
+
+    <span class="section-tag">${escapeHtml(category)}</span>
+    <h1 class="modal-title">${escapeHtml(blog.title)}</h1>
+
     <div class="modal-meta">
-      <div class="author-avatar">${author.charAt(0).toUpperCase()}</div>
-      <div class="author-info">
-        <div class="name">${escapeHtml(author)}</div>
-        <div class="date">${date} &middot; ${readTime} min read</div>
+      <div class="author-avatar" style="background: var(--dark); color: white;">${author.charAt(0).toUpperCase()}</div>
+      <div>
+        <strong>${escapeHtml(author)}</strong>
+        <div class="stories-count">${formatDate(blog.createdAt)}</div>
       </div>
       <div class="modal-divider"></div>
-      <div class="modal-readtime">${readTime} min read</div>
+      <div class="stories-count">${getReadTime(blog.content)} min read</div>
     </div>
-    <div class="modal-body">${escapeHtml(blog.content)}</div>
-    <div class="modal-actions">
-      <div class="act-like">&#9829; Like</div>
-      <div class="act-share">&#8599; Share</div>
-      <div class="act-bookmark">&#10010; Save</div>
-    </div>`;
 
-  // Re-draw star field for modal
-  setTimeout(() => initStarField("modalStars", 35), 50);
+    <div class="modal-content-text">${escapeHtml(blog.content)}</div>
+  `;
 
-  document.getElementById("blogModal").classList.add("open");
+  document.getElementById("blogModal")?.classList.add("open");
   document.body.style.overflow = "hidden";
 }
 
-function closeModal(e) { if (e.target === e.currentTarget) closeBlogModal(); }
-function closeBlogModal() { document.getElementById("blogModal").classList.remove("open"); document.body.style.overflow = ""; }
-
-/* ───── CREATE BLOG ───── */
-async function createBlog() {
-  const title = document.getElementById("blogTitle").value.trim();
-  const content = document.getElementById("blogContent").value.trim();
-  const category = document.getElementById("blogCategory").value;
-  if (!title || !content) { showToast("Please add a title and content", "error"); return; }
-  try {
-    const res = await fetch(`${API}/api/blogs`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "Authorization": "Bearer " + token },
-      body: JSON.stringify({ title, content, category })
-    });
-    const data = await res.json();
-    if (res.ok) {
-      document.getElementById("blogTitle").value = "";
-      document.getElementById("blogContent").value = "";
-      document.getElementById("blogCategory").value = "";
-      document.getElementById("charCount").textContent = "0 characters";
-      showToast("Story published!", "success");
-      await loadBlogs();
-    } else showToast(data.message || "Failed to publish", "error");
-  } catch { showToast("Server error", "error"); }
+function closeModal(event) {
+  if (event.target === event.currentTarget) {
+    closeBlogModal();
+  }
 }
 
-/* ───── LIKE ───── */
-function likeBlog(id, btn) {
-  if (!token) { showToast("Sign in to like stories", "error"); return; }
-  btn.classList.toggle("liked");
-  const count = parseInt(btn.textContent.replace("♥ ", "")) || 0;
-  btn.textContent = `♥ ${btn.classList.contains("liked") ? count + 1 : Math.max(0, count - 1)}`;
+function closeBlogModal() {
+  document.getElementById("blogModal")?.classList.remove("open");
+  document.body.style.overflow = "";
 }
 
-/* ───── EDIT MODAL ───── */
 function openEditModal(id) {
-  const blog = allBlogs.find(b => b._id === id);
+  const blog = allBlogs.find((item) => item._id === id);
   if (!blog) return;
+
   editingBlogId = id;
+
   document.getElementById("editTitle").value = blog.title;
+  document.getElementById("editCategory").value = blog.category || "Other";
   document.getElementById("editContent").value = blog.content;
-  document.getElementById("editCategory").value = blog.category || "";
-  document.getElementById("editModal").classList.add("open");
+
+  document.getElementById("editModal")?.classList.add("open");
   document.body.style.overflow = "hidden";
 }
-function closeEditModal() { document.getElementById("editModal").classList.remove("open"); document.body.style.overflow = ""; editingBlogId = null; }
-function closeEditModalOverlay(e) { if (e.target === e.currentTarget) closeEditModal(); }
+
+function closeEditModal() {
+  document.getElementById("editModal")?.classList.remove("open");
+  document.body.style.overflow = "";
+  editingBlogId = null;
+}
+
+function closeEditModalOverlay(event) {
+  if (event.target === event.currentTarget) {
+    closeEditModal();
+  }
+}
+
+async function createBlog() {
+  const title = document.getElementById("blogTitle")?.value.trim();
+  const category = document.getElementById("blogCategory")?.value || "Other";
+  const content = document.getElementById("blogContent")?.value.trim();
+
+  if (!token) {
+    showToast("Please login first", "error");
+    return;
+  }
+
+  if (!title || !content) {
+    showToast("Please add title and content", "error");
+    return;
+  }
+
+  try {
+    const response = await fetch(`${API}/api/blogs`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify({ title, category, content })
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+      document.getElementById("blogTitle").value = "";
+      document.getElementById("blogCategory").value = "";
+      document.getElementById("blogContent").value = "";
+      document.getElementById("charCount").textContent = "0 characters";
+
+      showToast("Story published successfully", "success");
+      await loadBlogs();
+      scrollToLatest();
+    } else {
+      showToast(data.message || "Failed to create story", "error");
+    }
+  } catch (error) {
+    showToast("Server error", "error");
+  }
+}
 
 async function submitEdit() {
-  const title = document.getElementById("editTitle").value.trim();
-  const content = document.getElementById("editContent").value.trim();
-  const category = document.getElementById("editCategory").value;
-  if (!title || !content) { showToast("Title and content required", "error"); return; }
+  const title = document.getElementById("editTitle")?.value.trim();
+  const category = document.getElementById("editCategory")?.value || "Other";
+  const content = document.getElementById("editContent")?.value.trim();
+
+  if (!title || !content) {
+    showToast("Please fill all fields", "error");
+    return;
+  }
+
   try {
-    const res = await fetch(`${API}/api/blogs/${editingBlogId}`, {
+    const response = await fetch(`${API}/api/blogs/${editingBlogId}`, {
       method: "PUT",
-      headers: { "Content-Type": "application/json", "Authorization": "Bearer " + token },
-      body: JSON.stringify({ title, content, category })
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify({ title, category, content })
     });
-    if (res.ok) { showToast("Story updated!", "success"); closeEditModal(); await loadBlogs(); }
-    else { const data = await res.json(); showToast(data.message || "Failed to update", "error"); }
-  } catch { showToast("Server error", "error"); }
+
+    const data = await response.json();
+
+    if (response.ok) {
+      showToast("Story updated", "success");
+      closeEditModal();
+      await loadBlogs();
+    } else {
+      showToast(data.message || "Failed to update", "error");
+    }
+  } catch (error) {
+    showToast("Server error", "error");
+  }
 }
 
-/* ───── DELETE ───── */
 async function deleteBlog(id) {
-  if (!confirm("Delete this story? This cannot be undone.")) return;
+  const ok = confirm("Do you want to delete this story?");
+  if (!ok) return;
+
   try {
-    const res = await fetch(`${API}/api/blogs/${id}`, { method: "DELETE", headers: { "Authorization": "Bearer " + token } });
-    if (res.ok) { showToast("Story deleted", ""); await loadBlogs(); }
-    else showToast("Failed to delete", "error");
-  } catch { showToast("Server error", "error"); }
+    const response = await fetch(`${API}/api/blogs/${id}`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+
+    if (response.ok) {
+      showToast("Story deleted", "success");
+      await loadBlogs();
+    } else {
+      const data = await response.json();
+      showToast(data.message || "Failed to delete", "error");
+    }
+  } catch (error) {
+    showToast("Server error", "error");
+  }
 }
 
-/* ───── HELPERS ───── */
-function toggleMenu() { document.getElementById("navLinks").classList.toggle("open"); }
-function escapeHtml(str) { const d = document.createElement("div"); d.appendChild(document.createTextNode(str || "")); return d.innerHTML; }
-function showToast(msg, type = "") { const t = document.getElementById("toast"); t.textContent = msg; t.className = "toast show " + type; setTimeout(() => t.className = "toast", 3200); }
-document.addEventListener("keydown", (e) => { if (e.key === "Escape") { closeBlogModal(); closeEditModal(); } });
+function likeBlog(button) {
+  button.classList.toggle("liked");
+  const current = parseInt(button.textContent.replace("♥", "").trim()) || 0;
+  button.textContent = button.classList.contains("liked") ? `♥ ${current + 1}` : `♥ ${Math.max(0, current - 1)}`;
+}
+
+function showToast(message, type = "") {
+  const toast = document.getElementById("toast");
+  if (!toast) {
+    alert(message);
+    return;
+  }
+
+  toast.textContent = message;
+  toast.className = `toast show ${type}`.trim();
+
+  setTimeout(() => {
+    toast.className = "toast";
+  }, 2800);
+}
+
+function getCategoryImage(category) {
+  return categoryImages[category] || categoryImages.Other;
+}
+
+function shortenText(text = "", limit = 120) {
+  return text.length > limit ? text.slice(0, limit).trim() + "..." : text;
+}
+
+function getReadTime(content = "") {
+  return Math.max(1, Math.ceil(content.split(/\s+/).length / 180));
+}
+
+function formatDate(value) {
+  return new Date(value).toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric"
+  });
+}
+
+function escapeHtml(text) {
+  const div = document.createElement("div");
+  div.appendChild(document.createTextNode(text || ""));
+  return div.innerHTML;
+}
+
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape") {
+    closeBlogModal();
+    closeEditModal();
+  }
+});
